@@ -11,24 +11,68 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.read<User>();
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(color: Colors.amber),
-            child: Text("Profile Page"),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 50,
+                ),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      child: Icon(Icons.person, size: 45),
+                    ),
+                    Text(user.email!, style: TextStyle(fontSize: 22)),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  context.read<AuthBloc>().add(const AuthLogoutPressed());
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(width: 2)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 30,
+                      ),
+
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.logout, size: 38),
+                              SizedBox(width: 20),
+                              Text(
+                                "Log Out",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Icon(Icons.keyboard_arrow_right_rounded, size: 38),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          Container(child: Text(user.email!)),
-          Container(
-            height: 120,
-            width: 200,
-            decoration: BoxDecoration(color: Colors.blue),
-            child: GestureDetector(
-              onTap: () {
-                context.read<AuthBloc>().add(const AuthLogoutPressed());
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

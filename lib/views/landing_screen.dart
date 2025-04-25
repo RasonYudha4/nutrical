@@ -18,7 +18,6 @@ class LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Flutter Bottom Navbar Tutorial w/ Bloc')),
       bottomNavigationBar: BlocBuilder<NavigationCubit, NavigationState>(
         builder: (context, state) {
           return BottomNavigationBar(
