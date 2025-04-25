@@ -27,7 +27,6 @@ class LandingScreenState extends State<LandingScreen> {
             selectedItemColor: Colors.blue,
             unselectedItemColor: Colors.grey,
             backgroundColor: Colors.white,
-
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined),

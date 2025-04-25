@@ -13,14 +13,11 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 30),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                  vertical: 50,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 50),
                 child: Column(
                   children: [
                     CircleAvatar(
@@ -35,37 +32,34 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   context.read<AuthBloc>().add(const AuthLogoutPressed());
                 },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(width: 2)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(width: 2)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 30,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20.0,
-                        vertical: 30,
-                      ),
 
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.logout, size: 38),
-                              SizedBox(width: 20),
-                              Text(
-                                "Log Out",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20,
-                                ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.logout, size: 38),
+                            SizedBox(width: 20),
+                            Text(
+                              "Log Out",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
                               ),
-                            ],
-                          ),
-                          Icon(Icons.keyboard_arrow_right_rounded, size: 38),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                        Icon(Icons.keyboard_arrow_right_rounded, size: 38),
+                      ],
                     ),
                   ),
                 ),
