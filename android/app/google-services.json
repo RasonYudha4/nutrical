@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "56298213998",
+    "project_id": "nutrical-1a61d",
+    "storage_bucket": "nutrical-1a61d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56298213998:android:1324d1592b6dfd30568c7f",
+        "android_client_info": {
+          "package_name": "com.example.nutrical"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyj5cdV7I8-p3bmXubAx2iN5YXxHYwazQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
