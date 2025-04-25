@@ -3,10 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'auth/auth_gate.dart';
-import 'auth/bloc_observer.dart';
-import 'auth/blocs/auth/auth_bloc.dart';
-import 'packages/repositories/auth_repo.dart';
+import 'views/auth/auth_gate.dart';
+import 'blocs/bloc_observer.dart';
+import 'blocs/auth/auth_bloc.dart';
+import 'data/repositories/auth_repo.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

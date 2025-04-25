@@ -2,14 +2,15 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 
-import '../../../packages/form_inputs/auth/email.dart';
-import '../../../packages/form_inputs/auth/password.dart';
-import '../../../packages/repositories/auth_repo.dart';
+import '../../data/form_inputs/auth/confirm_password.dart';
+import '../../data/form_inputs/auth/email.dart';
+import '../../data/form_inputs/auth/password.dart';
+import '../../data/repositories/auth_repo.dart';
 
-part 'login_state.dart';
+part 'signup_state.dart';
 
-class LoginCubit extends Cubit<LoginState> {
-  LoginCubit(this._authenticationRepository) : super(const LoginState());
+class SignUpCubit extends Cubit<SignUpState> {
+  SignUpCubit(this._authenticationRepository) : super(const SignUpState());
 
   final AuthRepo _authenticationRepository;
 
@@ -17,11 +18,15 @@ class LoginCubit extends Cubit<LoginState> {
 
   void passwordChanged(String password) => emit(state.withPassword(password));
 
-  Future<void> logInWithCredentials() async {
+  void confirmedPasswordChanged(String confirmedPassword) {
+    emit(state.withConfirmedPassword(confirmedPassword));
+  }
+
+  Future<void> signUpFormSubmitted() async {
     if (!state.isValid) return;
     emit(state.withSubmissionInProgress());
     try {
-      await _authenticationRepository.logIn(
+      await _authenticationRepository.signUp(
         email: state.email.value,
         password: state.password.value,
       );

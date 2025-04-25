@@ -1,13 +1,13 @@
 import 'package:flow_builder/flow_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nutrical/auth/blocs/navigation/navigation_cubit.dart';
+import 'package:nutrical/blocs/navigation/navigation_cubit.dart';
 import 'package:provider/provider.dart';
 
-import 'blocs/auth/auth_bloc.dart';
-import 'models/User.dart';
-import 'views/landing_screen.dart';
-import 'views/login/login_page.dart';
+import '../../blocs/auth/auth_bloc.dart';
+import '../../data/models/User.dart';
+import '../landing_screen.dart';
+import 'login/login_page.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

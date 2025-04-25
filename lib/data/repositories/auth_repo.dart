@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
-import '../../auth/models/User.dart';
+import '../models/User.dart';
 import '../cache/cache_client.dart';
 
 class AuthRepo {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 
-import '../../blocs/login/login_cubit.dart';
+import '../../../blocs/login/login_cubit.dart';
 import '../signup/signup_page.dart';
 
 class LoginForm extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:nutrical/packages/repositories/auth_repo.dart';
+import 'package:nutrical/data/repositories/auth_repo.dart';
 
-import '../../models/User.dart';
+import '../../data/models/User.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

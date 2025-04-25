@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../analyze/views/analyze_page.dart';
-import '../../home/views/home_page.dart';
-import '../../recipe/views/recipe_page.dart';
-import '../../views/profile_page.dart';
+import 'analyze/analyze_page.dart';
+import 'home/home_page.dart';
+import 'recipe/recipe_page.dart';
+import 'profile/profile_page.dart';
 import '../blocs/navigation/navigation_cubit.dart';
 
 class LandingScreen extends StatefulWidget {
