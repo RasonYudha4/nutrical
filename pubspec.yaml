@@ -19,6 +19,7 @@ dependencies:
   provider: ^6.1.4
   formz: ^0.8.0
   flutter_gemini: ^3.0.0
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
