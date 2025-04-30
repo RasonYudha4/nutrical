@@ -1,11 +1,10 @@
-import 'package:bloc/bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 
 import 'config/api_keys.dart';
-import 'views/auth/auth_gate.dart';
+import 'views/pages/auth/auth_gate.dart';
 import 'blocs/bloc_observer.dart';
 import 'blocs/auth/auth_bloc.dart';
 import 'data/repositories/auth_repo.dart';

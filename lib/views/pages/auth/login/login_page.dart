@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutrical/data/repositories/auth_repo.dart';
 
-import '../../../blocs/login/login_cubit.dart';
+import '../../../../blocs/login/login_cubit.dart';
 import 'login_form.dart';
 
 class LoginPage extends StatelessWidget {
