@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 
-class MeatPlannerPage extends StatefulWidget {
-  const MeatPlannerPage({super.key});
+class MealPlannerPage extends StatefulWidget {
+  const MealPlannerPage({super.key});
 
   @override
-  State<MeatPlannerPage> createState() => _MeatPlannerPageState();
+  State<MealPlannerPage> createState() => _MealPlannerPageState();
 }
 
-class _MeatPlannerPageState extends State<MeatPlannerPage> {
+class _MealPlannerPageState extends State<MealPlannerPage> {
   final TextEditingController _messageController = TextEditingController();
   final List<Map<String, String>> _messages = [];
 
@@ -60,7 +60,7 @@ class _MeatPlannerPageState extends State<MeatPlannerPage> {
                     const Expanded(
                       child: Center(
                         child: Text(
-                          "Meat planner",
+                          "Meal planner",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
