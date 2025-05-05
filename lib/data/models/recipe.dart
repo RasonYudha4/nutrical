@@ -20,9 +20,9 @@ class Recipe {
       id: id,
       name: map['name'] ?? '',
       desc: map['desc'] ?? '',
-      ingredients: map['ingredients'] ?? '',
-      steps: map['steps'] ?? '',
-      nutritions: map['nutritions'] ?? '',
+      ingredients: List<String>.from(map['ingredients'] ?? []),
+      steps: List<String>.from(map['steps'] ?? []),
+      nutritions: Map<String, String>.from(map['nutritions'] ?? {}),
     );
   }
 }
