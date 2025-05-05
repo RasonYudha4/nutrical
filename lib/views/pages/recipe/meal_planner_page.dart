@@ -42,39 +42,37 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            PreferredSize(
-              preferredSize: const Size.fromHeight(60),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 15.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const Expanded(
-                      child: Center(
-                        child: Text(
-                          "Meal planner",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+      backgroundColor: const Color(0xffD3E671),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 30, left: 30, top: 30),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                const Expanded(
+                  child: Center(
+                    child: Text(
+                      "Meal planner",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 48),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 48),
+              ],
             ),
-            const Divider(height: 1),
-            Expanded(
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               child: ListView.builder(
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
@@ -84,11 +82,14 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
                     alignment:
                         isUser ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                      padding: EdgeInsets.all(12),
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isUser ? Colors.blue[100] : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8),
+                        color:
+                            isUser
+                                ? const Color(0xFFF8ED8C)
+                                : const Color(0xFF89AC46),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(message['text'] ?? ''),
                     ),
@@ -96,53 +97,54 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
                 },
               ),
             ),
-
-            Container(
-              decoration: BoxDecoration(color: Colors.white),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 8.0,
+          ),
+          Container(
+            color: const Color(0xFF89AC46),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+            child: Row(
+              children: [
+                SizedBox(
+                  height: 48,
+                  width: 48,
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.image, size: 32, color: Colors.white),
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          hintText: "Type a message...",
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8.0,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24.0),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                        ),
-                        textCapitalization: TextCapitalization.sentences,
-                        maxLines: null,
-                      ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.blue,
+                    alignment: Alignment.center,
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: const InputDecoration(
+                        hintText: "Type something...",
+                        border: InputBorder.none,
                       ),
-                      child: IconButton(
-                        icon: const Icon(Icons.send, color: Colors.white),
-                        onPressed: _sendMessage,
-                      ),
+                      maxLines: null,
+                      textCapitalization: TextCapitalization.sentences,
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  height: 48,
+                  width: 48,
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: _sendMessage,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
