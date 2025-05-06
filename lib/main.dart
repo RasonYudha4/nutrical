@@ -4,14 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 
 import 'config/api_keys.dart';
-import 'views/pages/auth/auth_gate.dart';
+import 'views/auth_gate.dart';
 import 'blocs/bloc_observer.dart';
 import 'blocs/auth/auth_bloc.dart';
 import 'data/repositories/auth_repo.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Bloc.observer = const AppBlocObserver();
+  Bloc.observer = AppBlocObserver();
 
   await Firebase.initializeApp();
 
@@ -29,8 +29,8 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider.value(
-      value: _authenticationRepository,
+    return MultiRepositoryProvider(
+      providers: [RepositoryProvider.value(value: _authenticationRepository)],
       child: BlocProvider(
         lazy: false,
         create:

@@ -4,11 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutrical/blocs/navigation/navigation_cubit.dart';
 import 'package:provider/provider.dart';
 
-import '../../../blocs/auth/auth_bloc.dart';
-import '../../../config/size_config.dart';
-import '../../../data/models/User.dart';
-import '../../landing_screen.dart';
-import 'login/login_page.dart';
+import '../blocs/auth/auth_bloc.dart';
+import '../config/size_config.dart';
+import '../data/models/user.dart';
+import 'pages/landing_screen.dart';
+import 'pages/auth/login/login_page.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -23,14 +23,17 @@ class AuthGate extends StatelessWidget {
           SizeConfig.init(context);
           return FlowBuilder<AuthStatus>(
             state: context.select((AuthBloc bloc) => bloc.state.status),
-
             onGeneratePages: (status, _) {
               switch (status) {
                 case AuthStatus.authenticated:
                   return [
                     MaterialPage(
-                      child: BlocProvider(
-                        create: (_) => NavigationCubit(),
+                      child: MultiBlocProvider(
+                        providers: [
+                          BlocProvider(create: (_) => NavigationCubit()),
+                          // BlocProvider(create: (_) => MealBloc()),
+                          // BlocProvider(create: (_) => RecipeBloc()),
+                        ],
                         child: Provider<User>.value(
                           value: user,
                           child: const LandingScreen(),

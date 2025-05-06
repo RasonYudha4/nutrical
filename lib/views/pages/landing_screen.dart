@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'pages/analyze/analyze_page.dart';
-import 'pages/home/home_page.dart';
-import 'pages/recipe/recipe_page.dart';
-import 'pages/profile/profile_page.dart';
-import '../blocs/navigation/navigation_cubit.dart';
-import 'widgets/navigation_bar.dart';
+import '../../blocs/meal/meal_bloc.dart';
+import '../../blocs/recipe/recipe_bloc.dart';
+import 'analyze/analyze_page.dart';
+import 'home/home_page.dart';
+import 'recipe/recipe_page.dart';
+import 'profile/profile_page.dart';
+import '../../blocs/navigation/navigation_cubit.dart';
+import '../widgets/navigation_bar.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -25,7 +27,13 @@ class LandingScreenState extends State<LandingScreen> {
           if (state.navbarItem == NavbarItem.home) {
             return HomePage();
           } else if (state.navbarItem == NavbarItem.recipe) {
-            return RecipePage();
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => MealBloc()),
+                BlocProvider(create: (_) => RecipeBloc()),
+              ],
+              child: RecipePage(),
+            );
           } else if (state.navbarItem == NavbarItem.analyze) {
             return AnalyzePage();
           } else if (state.navbarItem == NavbarItem.profile) {
