@@ -1,10 +1,10 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:image_picker/image_picker.dart';
 import "package:flutter_gemini/flutter_gemini.dart";
 import 'dart:convert';
+import 'analysis_result.dart';
 
 class AnalyzePage extends StatefulWidget {
   const AnalyzePage({super.key});
@@ -48,6 +48,13 @@ class _AnalyzePageState extends State<AnalyzePage> {
     } catch (e) {
       print('Error taking photo: $e');
     }
+  }
+
+  void resetState() {
+    setState(() {
+      _image = null;
+      _geminiResponse = {};
+    });
   }
 
   Future<void> _pickImageFromGallery() async {
@@ -100,6 +107,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
             "additional_info": Additional information about the food (e.g: Overall this is a healthy food)
             }
             Do not include any explanations, markdown formatting, or code block indicators (e.g., no ```json or backticks). Only respond with the raw JSON.
+            You can add bold and italics markdown formatting to the "additional_info" field.
             If it is not a food response with {"error": "Not a food"}
           ''',
             ),
@@ -227,61 +235,9 @@ class _AnalyzePageState extends State<AnalyzePage> {
                     ],
                   ),
                 )
-                : Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40, horizontal: 30),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFF89AC46),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 15,
-                        horizontal: 20,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Text(
-                              _geminiResponse["food_name"],
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 30),
-                          Text(
-                            "Main Ingredients: ${_geminiResponse["main_ingredients"].join(", ")}",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            "Calories: ${_geminiResponse["calories"]} kcal",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            "Proteins: ${_geminiResponse["proteins"]} g",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            "Fats: ${_geminiResponse["fats"]} g",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            "Minerals: ${_geminiResponse["minerals"].join(", ")}",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(height: 20),
-                          Text(_geminiResponse["additional_info"]),
-                        ],
-                      ),
-                    ),
-                  ),
+                : AnalysisResult(
+                  geminiResponse: _geminiResponse,
+                  onPressedNo: resetState,
                 ),
           ],
         ),
