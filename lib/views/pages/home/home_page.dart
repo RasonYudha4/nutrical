@@ -1,8 +1,13 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'dart:math' as math;
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 import '../../../blocs/home/home_bloc.dart';
 import '../../widgets/home/meal_type_card.dart';
@@ -23,15 +28,21 @@ class _HomePageState extends State<HomePage> {
   int carbs = 200;
   int proteins = 18;
   int fats = 180;
-  int calories = 300;
-  int caloriesLimit = 380;
+  int calories = 6000;
+  int caloriesLimit = 3900;
+  int carbsLimit = 200;
+  int proteinsLimit = 200;
+  int fatsLimit = 200;
 
   final TextEditingController carbsController = TextEditingController();
   final TextEditingController proteinsController = TextEditingController();
   final TextEditingController fatsController = TextEditingController();
   final TextEditingController caloriesController = TextEditingController();
   final TextEditingController caloriesLimitController = TextEditingController();
-
+  final DatePickerController _datePickercontroller = DatePickerController();
+  final TextEditingController mealNameController = TextEditingController();
+  final TextEditingController servingSizeController = TextEditingController();
+  // Text styles
   final TextStyle nutritionTextStyle = const TextStyle(
     fontSize: 15,
     letterSpacing: 0.2,
@@ -41,29 +52,37 @@ class _HomePageState extends State<HomePage> {
     fontSize: 20,
     fontWeight: FontWeight.bold,
   );
+  @override
+  void initState() {
+    super.initState();
+    servingSizeController.text = "1";
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _datePickercontroller.jumpToSelection();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocProvider(
         create: (context) => HomeBloc()..add(LoadContents()),
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
-              ),
-              child: Container(
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              Container(
                 width: double.infinity,
-                height: 240,
-                color: backgroundColor,
+                height: 150,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
+                ),
               ),
-            ),
-            CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Container(
+              Column(
+                children: [
+                  Container(
                     padding: const EdgeInsets.only(left: 16, top: 60),
                     child: Row(
                       children: [
@@ -100,29 +119,71 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
+                  Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildNutritionSummary(),
+                        const SizedBox(height: 20),
+                        _buildNutritionSection(),
                         _buildDailyConsumptionsSection(),
                         _buildContentSection(),
                         const SizedBox(height: 20),
                       ],
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildNutritionSummary() {
+  Widget _buildNutritionHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            "Nutrition Status",
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Container(
+            padding: EdgeInsets.all(10),
+            height: 110,
+            decoration: BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color.fromARGB(100, 0, 0, 0),
+                  spreadRadius: 1,
+                  offset: Offset(2, 2),
+                  blurRadius: 2,
+                ),
+              ],
+            ),
+            child: DatePicker(
+              DateTime.now().subtract(
+                Duration(days: DateTime.now().weekday - DateTime.monday),
+              ),
+              controller: _datePickercontroller,
+              initialSelectedDate: DateTime.now(),
+              selectionColor: backgroundColor,
+              selectedTextColor: Colors.white,
+              daysCount: 7,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCaloriesCard() {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: Container(
@@ -142,12 +203,80 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              _buildSummaryHeader(),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [_buildNutrientsList(), _buildCaloriesCircle()],
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Calories",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Text(
+                            "${(caloriesLimit - calories).abs()}",
+                            style: TextStyle(
+                              fontSize: 35,
+                              fontWeight: FontWeight.bold,
+                              color: getNutritionColor(
+                                calories,
+                                caloriesLimit,
+                                "calories",
+                              ),
+                            ),
+                          ),
+                          Text(
+                            (caloriesLimit - calories) >= 0
+                                ? " kcal left"
+                                : " kcal over",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Text(
+                            "$calories ",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: getNutritionColor(
+                                calories,
+                                caloriesLimit,
+                                "calories",
+                              ),
+                            ),
+                          ),
+                          Text(
+                            "/ $caloriesLimit kcal",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  _buildNutritionCircle(
+                    65,
+                    15,
+                    const Color.fromARGB(255, 238, 252, 185),
+                    const Color.fromARGB(255, 35, 122, 18),
+                    calories,
+                    caloriesLimit,
+                  ),
+                ],
               ),
             ],
           ),
@@ -156,120 +285,183 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSummaryHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "Today's Nutrition Summarization",
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.2,
-          ),
-        ),
-        IconButton(
-          onPressed: _showEditDialog,
-          icon: Container(
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color.fromARGB(100, 0, 0, 0),
-                  spreadRadius: 1,
-                  offset: Offset(2, 2),
-                  blurRadius: 2,
+  Widget _buildNutritionCircle(
+    double radius,
+    double lineWidth,
+    Color backgroundColor,
+    Color progressColor,
+    int value,
+    int limit, {
+    bool isPercentage = true,
+    String category = "calories",
+  }) {
+    return CircularPercentIndicator(
+      radius: radius,
+      lineWidth: lineWidth,
+      backgroundColor: const Color.fromARGB(255, 238, 252, 185),
+      progressColor: progressColor,
+      percent: math.min(1, value / limit),
+      startAngle: 270,
+      circularStrokeCap: CircularStrokeCap.round,
+      center:
+          isPercentage
+              ? Text(
+                "${(value / limit * 100).toInt()}%",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-              ],
-            ),
-            child: const Padding(
-              padding: EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
-              child: Row(
+              )
+              : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Edit",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    value.toString(),
+                    style: TextStyle(
+                      color: getNutritionColor(value, limit, category),
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  SizedBox(width: 5),
-                  Icon(Icons.edit, size: 15),
+                  Text(
+                    "/$limit gr",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+    );
+  }
+
+  Widget _buildNutritionSection() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Subtract total horizontal padding (4 * 20 = 80)
+        double cardWidth = (constraints.maxWidth - 80) / 3;
+
+        return Column(
+          children: [
+            _buildNutritionHeader(),
+            SizedBox(height: 20),
+            _buildCaloriesCard(),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildNutritionCard(
+                    "Carbs",
+                    backgroundColor,
+                    Colors.indigo,
+                    carbs,
+                    carbsLimit,
+                    cardWidth,
+                  ),
+                  _buildNutritionCard(
+                    "Protein",
+                    backgroundColor,
+                    Colors.deepOrange,
+                    proteins,
+                    proteinsLimit,
+                    cardWidth,
+                  ),
+                  _buildNutritionCard(
+                    "Fats",
+                    backgroundColor,
+                    Colors.amber,
+                    fats,
+                    fatsLimit,
+                    cardWidth,
+                  ),
                 ],
               ),
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNutrientsList() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildNutrientRow("Carbs :", carbs),
-        const SizedBox(height: 5),
-        _buildNutrientRow("Proteins :", proteins),
-        const SizedBox(height: 5),
-        _buildNutrientRow("Fats :", fats),
-      ],
-    );
-  }
-
-  // Single nutrient row
-  Widget _buildNutrientRow(String label, int value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: nutritionTextStyle),
-        Row(
-          children: [
-            const SizedBox(width: 12),
-            Text(value.toString(), style: nutritionValueStyle),
-            Text(" g", style: nutritionValueStyle),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildCaloriesCircle() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Total Calories :", style: nutritionTextStyle),
-        Padding(
-          padding: const EdgeInsets.only(top: 10, right: 15),
-          child: CircularPercentIndicator(
-            radius: 70,
-            lineWidth: 15,
-            backgroundColor: const Color.fromARGB(255, 238, 252, 185),
-            progressColor: backgroundColor,
-            percent: math.min(1, calories / caloriesLimit),
-            startAngle: 270,
-            circularStrokeCap: CircularStrokeCap.round,
-            center: Column(
+  Widget _buildNutritionCard(
+    String nutrition,
+    Color backgroundColor,
+    Color progressColor,
+    int value,
+    int limit,
+    double width,
+  ) {
+    return Container(
+      width: width,
+      decoration: BoxDecoration(
+        color: primaryColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromARGB(100, 0, 0, 0),
+            spreadRadius: 1,
+            offset: Offset(2, 2),
+            blurRadius: 2,
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Text(
+              nutrition,
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            _buildNutritionCircle(
+              width * 0.4,
+              10,
+              backgroundColor,
+              progressColor,
+              value,
+              limit,
+              isPercentage: false,
+              category: nutrition.toLowerCase(),
+            ),
+            SizedBox(height: 10),
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(calories.toString(), style: nutritionValueStyle),
-                    Text(" Cal", style: nutritionValueStyle),
-                  ],
+                Text(
+                  value.toString(),
+                  style: TextStyle(
+                    color: getNutritionColor(
+                      value,
+                      limit,
+                      nutrition.toLowerCase(),
+                    ),
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("/", style: nutritionTextStyle),
-                    Text(caloriesLimit.toString(), style: nutritionTextStyle),
-                    Text(" Cal", style: nutritionTextStyle),
-                  ],
+                Text(
+                  value > limit ? "gr over" : "gr left",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
-          ),
+            SizedBox(height: 10),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -447,281 +639,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Show edit nutrition dialog
-  void _showEditDialog() {
-    carbsController.text = carbs.toString();
-    proteinsController.text = proteins.toString();
-    fatsController.text = fats.toString();
-    caloriesController.text = calories.toString();
-    caloriesLimitController.text = caloriesLimit.toString();
-
-    showDialog(
-      context: context,
-      builder:
-          (context) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            backgroundColor: Colors.transparent,
-            child: Container(
-              decoration: BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color.fromARGB(100, 0, 0, 0),
-                    spreadRadius: 1,
-                    offset: Offset(2, 2),
-                    blurRadius: 2,
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Today's Nutrition Summarization",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.2,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildEditableNutrientsList(),
-                            _buildEditableCaloriesCircle(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _saveNutritionData();
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: backgroundColor,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          "Save",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          "Cancel",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ),
-    );
-  }
-
-  // Editable nutrients list
-  Widget _buildEditableNutrientsList() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildEditableNutrientRow("Carbs :", carbsController),
-        const SizedBox(height: 5),
-        _buildEditableNutrientRow("Proteins :", proteinsController),
-        const SizedBox(height: 5),
-        _buildEditableNutrientRow("Fats :", fatsController),
-      ],
-    );
-  }
-
-  // Single editable nutrient row
-  Widget _buildEditableNutrientRow(
-    String label,
-    TextEditingController controller,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: nutritionTextStyle),
-        Row(
-          children: [
-            const SizedBox(width: 12),
-            Container(
-              width: 50,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: const Color(0xFFD3E671),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: TextField(
-                controller: controller,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 2),
-                ),
-              ),
-            ),
-            Text(" g", style: nutritionValueStyle),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // Editable calories circle
-  Widget _buildEditableCaloriesCircle() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Total Calories :", style: nutritionTextStyle),
-        Padding(
-          padding: const EdgeInsets.only(top: 10, right: 15),
-          child: CircularPercentIndicator(
-            radius: 70,
-            lineWidth: 15,
-            backgroundColor: const Color.fromARGB(255, 238, 252, 185),
-            progressColor: backgroundColor,
-            percent: math.min(1, (calories / caloriesLimit)),
-            startAngle: 270,
-            circularStrokeCap: CircularStrokeCap.round,
-            center: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 50,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD3E671),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: TextField(
-                        controller: caloriesController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 2),
-                        ),
-                      ),
-                    ),
-                    Text(" Cal", style: nutritionValueStyle),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("/", style: nutritionTextStyle),
-                    Container(
-                      width: 50,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD3E671),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: TextField(
-                        controller: caloriesLimitController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 2),
-                        ),
-                      ),
-                    ),
-                    Text(" Cal", style: nutritionTextStyle),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Save nutrition data from the edit dialog
-  void _saveNutritionData() {
-    setState(() {
-      carbs = int.parse(carbsController.text);
-      proteins = int.parse(proteinsController.text);
-      fats = int.parse(fatsController.text);
-      calories = int.parse(caloriesController.text);
-      caloriesLimit = int.parse(caloriesLimitController.text);
-    });
-  }
-
   // Show add meal dialog
   void _showAddMealDialog() {
     showDialog(
@@ -746,26 +663,33 @@ class _HomePageState extends State<HomePage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(10),
+                Padding(
+                  padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
                       MealTextField(
                         icon: Icons.local_dining_rounded,
                         hintText: "Meal name",
+                        controller: mealNameController,
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       MealTextField(
                         icon: Icons.dinner_dining,
                         hintText: "Serving estimation",
+                        controller: servingSizeController,
+                        keyboardType: TextInputType.number,
+                        inputFormatter: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                       ),
-                      SizedBox(height: 20),
-                      MealTypeDropdown(),
+                      const SizedBox(height: 20),
+                      const MealTypeDropdown(),
                     ],
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
+                    _analyzeFood();
                     Navigator.pop(context);
                   },
                   child: Container(
@@ -791,5 +715,101 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+
+  Future<void> _analyzeFood() async {
+    try {
+      final gemini = Gemini.instance;
+      Candidates? result;
+      do {
+        result = await gemini.prompt(
+          parts: [
+            Part.text(
+              '''Analyze the nutritional value of the food! Respond ONLY with a raw JSON object in this format:
+            {
+            "food_name": "Name of the food in proper name (No abbrevitations and such)" (String),
+            "main_ingredients": ["Main ingredients of the food"] (Array of string),
+            "calories": Amount of calories in kcal (int),
+            "carbohydrates": Amount of carbohydrates in grams (int),
+            "proteins": Amount of proteins in grams (int),
+            "fats": Amount of fats in grams (int),
+            "minerals": ["Minerals contained in the food"] (Array of strings)
+            }
+            Do not include any explanations, markdown formatting, or code block indicators (e.g., no ```json or backticks). Only respond with the raw JSON.
+            You can add bold and italics markdown formatting to the "additional_info" field.
+            If it is not a food or the food name is empty response with {"error": "Not a food"}
+          ''',
+            ),
+            Part.text(
+              "Food name: ${mealNameController.text}\nServing size: ${servingSizeController.text}",
+            ),
+          ],
+          generationConfig: GenerationConfig(temperature: 0),
+          model: "gemini-2.0-flash-exp-image-generation",
+        );
+      } while (!isJSON(result?.output ?? '{"error": "Not a food"}'));
+      log(result?.output ?? "");
+      Map<String, dynamic> geminiResponse = jsonDecode(result?.output ?? "");
+      setState(() {
+        fats += geminiResponse["fats"] as int;
+      });
+      // return jsonDecode(result?.output ?? "");
+    } catch (e) {
+      log("Gemini error: $e");
+    }
+  }
+
+  bool isJSON(String geminiOutput) {
+    try {
+      jsonDecode(geminiOutput);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Color getNutritionColor(int value, int limit, String category) {
+    Map<String, Color> colorMap = {
+      "Good": Color.fromARGB(255, 64, 155, 230),
+      "Moderate": Color(0xFFFFC107),
+      "Bad": Color(0xFFE53935),
+    };
+    double percentage = value / limit;
+    log(percentage.toString());
+    if (category == "calories") {
+      if (percentage >= 0.8 && percentage <= 1.0) {
+        return colorMap["Good"]!;
+      } else if (percentage > 1.0 && percentage <= 1.2) {
+        return colorMap["Moderate"]!;
+      } else {
+        return colorMap["Bad"]!;
+      }
+    } else if (category == "protein") {
+      if (percentage >= 0.9 && percentage <= 1.1) {
+        return colorMap["Good"]!;
+      } else if (percentage > 1.1 && percentage <= 1.3) {
+        return colorMap["Moderate"]!;
+      } else {
+        return colorMap["Bad"]!;
+      }
+    } else if (category == "fats") {
+      if (percentage >= 0.7 && percentage <= 1.0) {
+        return colorMap["Good"]!;
+      } else if (percentage > 1.0 && percentage <= 1.2) {
+        return colorMap["Moderate"]!;
+      } else {
+        return colorMap["Bad"]!;
+      }
+    } else if (category == "carbs") {
+      if (percentage >= 0.9 && percentage <= 1.1) {
+        return colorMap["Good"]!;
+      } else if (percentage > 1.1 && percentage <= 1.3) {
+        return colorMap["Moderate"]!;
+      } else {
+        return colorMap["Bad"]!;
+      }
+    } else {
+      return Colors.black;
+    }
   }
 }
