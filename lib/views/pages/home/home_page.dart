@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'dart:math' as math;
 
+import '../../../blocs/home/home_bloc.dart';
 import '../../widgets/home/meal_type_card.dart';
 import '../../widgets/home/meal_textfield.dart';
 import '../../widgets/home/meal_type_dropdown.dart';
@@ -15,25 +17,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Colors
   final backgroundColor = const Color(0xFFD3E671);
   final primaryColor = const Color(0xFF89AC46);
 
-  // Nutrition data
   int carbs = 200;
   int proteins = 18;
   int fats = 180;
   int calories = 300;
   int caloriesLimit = 380;
 
-  // Text controllers
   final TextEditingController carbsController = TextEditingController();
   final TextEditingController proteinsController = TextEditingController();
   final TextEditingController fatsController = TextEditingController();
   final TextEditingController caloriesController = TextEditingController();
   final TextEditingController caloriesLimitController = TextEditingController();
 
-  // Text styles
   final TextStyle nutritionTextStyle = const TextStyle(
     fontSize: 15,
     letterSpacing: 0.2,
@@ -47,77 +45,79 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
+      body: BlocProvider(
+        create: (context) => HomeBloc()..add(LoadContents()),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+              child: Container(
+                width: double.infinity,
+                height: 240,
+                color: backgroundColor,
+              ),
             ),
-            child: Container(
-              width: double.infinity,
-              height: 240,
-              color: backgroundColor,
-            ),
-          ),
-          CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Container(
-                  padding: const EdgeInsets.only(left: 16, top: 60),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color.fromARGB(100, 0, 0, 0),
-                              spreadRadius: 1,
-                              offset: Offset(2, 2),
-                              blurRadius: 2,
-                            ),
-                          ],
+            CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 16, top: 60),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color.fromARGB(100, 0, 0, 0),
+                                spreadRadius: 1,
+                                offset: Offset(2, 2),
+                                blurRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.home,
+                            size: 30,
+                            color: Colors.white,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.home,
-                          size: 30,
-                          color: Colors.white,
+                        const SizedBox(width: 15),
+                        const Text(
+                          'NutriCal',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 15),
-                      const Text(
-                        'NutriCal',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              // Main content
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Column(
-                    children: [
-                      _buildNutritionSummary(),
-                      _buildDailyConsumptionsSection(),
-                      _buildContentSection(),
-                      const SizedBox(height: 20),
-                    ],
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Column(
+                      children: [
+                        _buildNutritionSummary(),
+                        _buildDailyConsumptionsSection(),
+                        _buildContentSection(),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -287,7 +287,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           MealTypeCard(
-            mealType: "Breakfast",
+            mealType: "Track your consumption",
             primaryColor: primaryColor,
             onTap: _showAddMealDialog,
           ),
@@ -297,50 +297,51 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildContentSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 20, bottom: 10),
-            child: Text(
-              "Contents",
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-            ),
-          ),
-          SizedBox(
-            height: 250, // Fixed height for the scrollable content
-            child: ListView(
-              scrollDirection: Axis.horizontal,
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        if (state is ContentLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is ContentLoaded) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildContentCard(
-                  "Healthy Eating",
-                  "Making smart food choices doesn't mean sacrificing flavor.",
-                  "https://imgsrv2.voi.id/4UB_YXWr4rIKQoUdb4PugkW-e3ZDEX5cS2rDM4NQjco/auto/336/188/sm/1/bG9jYWw6Ly8vcHVibGlzaGVycy8yNTM3MzEvMjAyMzAyMTMxMzAzLW1haW4uanBn.jpg",
+                const Padding(
+                  padding: EdgeInsets.only(top: 20, bottom: 10),
+                  child: Text(
+                    "Contents",
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                const SizedBox(width: 10),
-                _buildContentCard(
-                  "Healthy Eating",
-                  "Making smart food choices doesn't mean sacrificing flavor.",
-                  "https://imgsrv2.voi.id/4UB_YXWr4rIKQoUdb4PugkW-e3ZDEX5cS2rDM4NQjco/auto/336/188/sm/1/bG9jYWw6Ly8vcHVibGlzaGVycy8yNTM3MzEvMjAyMzAyMTMxMzAzLW1haW4uanBn.jpg",
+                SizedBox(
+                  height: 250,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: state.contents.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 10),
+                    itemBuilder: (context, index) {
+                      final content = state.contents[index];
+                      return _buildContentCard(
+                        content.title,
+                        content.intro,
+                        content.img,
+                      );
+                    },
+                  ),
                 ),
-                const SizedBox(width: 10),
-                _buildContentCard(
-                  "Healthy Eating",
-                  "Making smart food choices doesn't mean sacrificing flavor.",
-                  "https://imgsrv2.voi.id/4UB_YXWr4rIKQoUdb4PugkW-e3ZDEX5cS2rDM4NQjco/auto/336/188/sm/1/bG9jYWw6Ly8vcHVibGlzaGVycy8yNTM3MzEvMjAyMzAyMTMxMzAzLW1haW4uanBn.jpg",
-                ),
-                const SizedBox(width: 10),
               ],
             ),
-          ),
-        ],
-      ),
+          );
+        } else if (state is ContentLoadError) {
+          return Center(child: Text("Error: ${state.message}"));
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
     );
   }
 
-  // Content card for articles
   Widget _buildContentCard(String title, String desc, String imageURL) {
     return Padding(
       padding: EdgeInsets.all(10),

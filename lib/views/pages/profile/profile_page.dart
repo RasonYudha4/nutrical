@@ -10,7 +10,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.read<User>();
-
+    print(user.name);
     return Scaffold(
       body: Stack(
         children: [
@@ -32,7 +32,11 @@ class ProfilePage extends StatelessWidget {
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 45.0, left: 25.0, right: 25.0),
+                      padding: const EdgeInsets.only(
+                        top: 45.0,
+                        left: 25.0,
+                        right: 25.0,
+                      ),
                       child: Column(
                         children: [
                           Stack(
@@ -52,7 +56,12 @@ class ProfilePage extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                padding: const EdgeInsets.only(top: 30, left: 16, right: 16, bottom: 16),
+                                padding: const EdgeInsets.only(
+                                  top: 30,
+                                  left: 16,
+                                  right: 16,
+                                  bottom: 16,
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -60,12 +69,20 @@ class ProfilePage extends StatelessWidget {
                                     Row(
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.only(top: 15),
-                                          child: Icon(Icons.edit, size: 21, color: Colors.white),
+                                          padding: const EdgeInsets.only(
+                                            top: 15,
+                                          ),
+                                          child: Icon(
+                                            Icons.edit,
+                                            size: 21,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                         const SizedBox(width: 4),
                                         Padding(
-                                          padding: const EdgeInsets.only(top: 13),
+                                          padding: const EdgeInsets.only(
+                                            top: 13,
+                                          ),
                                           child: Text(
                                             user.name ?? 'Rason',
                                             style: const TextStyle(
@@ -78,7 +95,8 @@ class ProfilePage extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 20),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
                                       children: [
                                         _buildStatItem('190.5', 'cm', 'Height'),
                                         _buildStatItem('90.5', 'kg', 'Weight'),
@@ -111,7 +129,9 @@ class ProfilePage extends StatelessWidget {
                           _buildMenuItem(
                             'Log out',
                             onTap: () {
-                              context.read<AuthBloc>().add(const AuthLogoutPressed());
+                              context.read<AuthBloc>().add(
+                                const AuthLogoutPressed(),
+                              );
                             },
                           ),
                         ],
@@ -146,10 +166,7 @@ class ProfilePage extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 6.0),
               child: Text(
                 unit,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
+                style: const TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
           ],

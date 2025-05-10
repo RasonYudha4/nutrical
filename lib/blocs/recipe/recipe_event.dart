@@ -12,3 +12,5 @@ class LoadRecipeById extends RecipeEvent {
 
   const LoadRecipeById(this.id);
 }
+
+class LoadRecipeNames extends RecipeEvent {}

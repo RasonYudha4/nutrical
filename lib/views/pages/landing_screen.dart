@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/meal/meal_bloc.dart';
-import '../../blocs/recipe/recipe_bloc.dart';
 import 'analyze/analyze_page.dart';
 import 'home/home_page.dart';
 import 'recipe/recipe_page.dart';
@@ -27,13 +25,7 @@ class LandingScreenState extends State<LandingScreen> {
           if (state.navbarItem == NavbarItem.home) {
             return HomePage();
           } else if (state.navbarItem == NavbarItem.recipe) {
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider(create: (_) => MealBloc()),
-                BlocProvider(create: (_) => RecipeBloc()),
-              ],
-              child: RecipePage(),
-            );
+            return RecipePage();
           } else if (state.navbarItem == NavbarItem.analyze) {
             return AnalyzePage();
           } else if (state.navbarItem == NavbarItem.profile) {
