@@ -1,14 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import '../../../../views/pages/recipe/meal_planner_page.dart';
+import '../../../blocs/meal/meal_bloc.dart';
+import '../../../data/models/meal.dart';
 import '../../../data/models/recipe_info.dart';
 
 class MealPlannerCard extends StatefulWidget {
+  final String userId;
   final bool isEnabled;
   final List<RecipeInfo> recipeInfo;
 
   const MealPlannerCard({
     super.key,
+    required this.userId,
     required this.isEnabled,
     required this.recipeInfo,
   });
@@ -41,7 +48,7 @@ class MealPlannerCardState extends State<MealPlannerCard> {
         .join('\n');
 
     final promptText = '''
-      Here’s a list of existing meals:
+      Here's a list of existing meals:
       $recipeList
 
       Based on the user's request: "$inputText", recommend meals for the week (breakfast, lunch, dinner for each day from Monday to Sunday).
@@ -61,9 +68,90 @@ class MealPlannerCardState extends State<MealPlannerCard> {
 
     final parts = [Part.text(promptText)];
 
-    final gemini = Gemini.instance;
-    final response = await gemini.prompt(parts: parts);
-    print(response?.output);
+    try {
+      _showLoadingDialog();
+
+      final gemini = Gemini.instance;
+      final response = await gemini.prompt(parts: parts);
+
+      if (!mounted) return;
+
+      Navigator.of(context, rootNavigator: true).pop();
+
+      if (response?.output != null) {
+        final String jsonStr = _extractJsonFromResponse(response!.output ?? "");
+
+        try {
+          final dynamic parsedJson = jsonDecode(jsonStr);
+
+          if (parsedJson != null && parsedJson['days'] != null) {
+            final List<dynamic> daysData = parsedJson['days'];
+            final List<Meal> meals =
+                daysData.map((dayData) => Meal.fromMap(dayData)).toList();
+
+            context.read<MealBloc>().add(
+              SaveMealPlan(userId: widget.userId, meals: meals),
+            );
+          } else {
+            _showErrorMessage('Invalid response format from AI service');
+          }
+        } catch (e) {
+          _showErrorMessage('Failed to parse AI response: ${e.toString()}');
+        }
+      } else {
+        _showErrorMessage('Failed to get response from AI service');
+      }
+    } catch (e) {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+      _showErrorMessage('Error generating meal plan: ${e.toString()}');
+    }
+  }
+
+  void _showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF89AC46),
+          content: Container(
+            height: 120,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
+            child: Row(
+              children: const [
+                CircularProgressIndicator(color: Color(0xFFD3E671)),
+                SizedBox(width: 20),
+                Text(
+                  "Generating meal plan...",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFD3E671),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  String _extractJsonFromResponse(String response) {
+    final startIndex = response.indexOf('{');
+    final endIndex = response.lastIndexOf('}');
+
+    if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+      return response.substring(startIndex, endIndex + 1);
+    }
+    return response;
   }
 
   @override

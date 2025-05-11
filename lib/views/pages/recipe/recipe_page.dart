@@ -53,13 +53,15 @@ class _RecipePageState extends State<RecipePage> {
                         );
                       });
                       return MealPlannerCard(
+                        userId: user.id,
                         isEnabled: true,
                         recipeInfo: state.recipeList,
                       );
                     } else {
-                      return const MealPlannerCard(
+                      return MealPlannerCard(
+                        userId: user.id,
                         isEnabled: false,
-                        recipeInfo: [],
+                        recipeInfo: const [],
                       );
                     }
                   },
@@ -72,6 +74,13 @@ class _RecipePageState extends State<RecipePage> {
                     } else if (state is MealError) {
                       return Center(child: Text('Error: //${state.message}'));
                     } else if (state is MealPlanLoaded) {
+                      print(state.mealPlan);
+                      print('Meal Days Count: ${state.mealPlan.days.length}');
+                      for (var meal in state.mealPlan.days) {
+                        print(
+                          'Meal Day: ${meal?.day}, Breakfast: ${meal?.breakfast}, Lunch: ${meal?.lunch}, Dinner: ${meal?.dinner}',
+                        );
+                      }
                       return _buildMealPlanContent(context, state.mealPlan);
                     } else {
                       return const Center(

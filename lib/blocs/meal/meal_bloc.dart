@@ -13,6 +13,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
 
   MealBloc() : super(MealInitial()) {
     on<LoadMealPlan>(_onLoadMealPlan);
+    on<SaveMealPlan>(_onSaveMealPlan);
   }
 
   Future<MealPlan?> _onLoadMealPlan(
@@ -31,5 +32,23 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       emit(MealError('Failed to load meal plan: ${e.toString()}'));
     }
     return null;
+  }
+
+  Future<void> _onSaveMealPlan(
+    SaveMealPlan event,
+    Emitter<MealState> emit,
+  ) async {
+    emit(MealLoading());
+    try {
+      await _mealRepo.saveMealPlan(event.userId, event.meals);
+      final mealPlan = await _mealRepo.fetchMealPlan(event.userId);
+      if (mealPlan != null) {
+        emit(MealPlanLoaded(mealPlan));
+      } else {
+        emit(MealError('Meal plan saved but could not be loaded.'));
+      }
+    } catch (e) {
+      emit(MealError('Failed to save meal plan: ${e.toString()}'));
+    }
   }
 }
