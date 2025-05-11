@@ -71,8 +71,6 @@ class _RecipePageState extends State<RecipePage> {
                   builder: (context, state) {
                     if (state is MealLoading) {
                       return const Center(child: CircularProgressIndicator());
-                    } else if (state is MealError) {
-                      return Center(child: Text('Error: //${state.message}'));
                     } else if (state is MealPlanLoaded) {
                       print(state.mealPlan);
                       print('Meal Days Count: ${state.mealPlan.days.length}');
@@ -84,7 +82,32 @@ class _RecipePageState extends State<RecipePage> {
                       return _buildMealPlanContent(context, state.mealPlan);
                     } else {
                       return const Center(
-                        child: Text('No meal plan available'),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.dining, size: 200, color: Colors.grey),
+                            SizedBox(height: 20),
+                            Text(
+                              "No Meal Plan Generated yet,",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              "Please Generate it first",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     }
                   },
