@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../blocs/auth/auth_bloc.dart';
 import '../../../data/models/user.dart';
+import 'about_page.dart';
+import 'faq_page.dart';
+import 'help_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -123,9 +126,45 @@ class ProfilePage extends StatelessWidget {
                           ),
                           const SizedBox(height: 40),
                           _buildMenuItem('Change Password', onTap: () {}),
-                          _buildMenuItem('FAQ', onTap: () {}),
-                          _buildMenuItem('About Nutrical', onTap: () {}),
-                          _buildMenuItem('Help', onTap: () {}),
+                          _buildMenuItem(
+                            'FAQ',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                    return FaqPage();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                          _buildMenuItem(
+                            'About Nutrical',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                    return AboutPage();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                          _buildMenuItem(
+                            'Help',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                    return HelpPage();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                           _buildMenuItem(
                             'Log out',
                             onTap: () {
