@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
 class MealTypeDropdown extends StatefulWidget {
-  const MealTypeDropdown({super.key});
-
+  final ValueChanged<String>? onChanged;
+  const MealTypeDropdown({super.key, this.onChanged});
   @override
   State<MealTypeDropdown> createState() => _MealTypeDropdownState();
 }
 
 class _MealTypeDropdownState extends State<MealTypeDropdown> {
   String selectedMeal = 'Breakfast';
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -44,6 +43,7 @@ class _MealTypeDropdownState extends State<MealTypeDropdown> {
               setState(() {
                 selectedMeal = value;
               });
+              widget.onChanged!(value);
             }
           },
         ),

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,12 +35,7 @@ class _HomePageState extends State<HomePage> {
   int carbsLimit = 200;
   int proteinsLimit = 200;
   int fatsLimit = 200;
-
-  final TextEditingController carbsController = TextEditingController();
-  final TextEditingController proteinsController = TextEditingController();
-  final TextEditingController fatsController = TextEditingController();
-  final TextEditingController caloriesController = TextEditingController();
-  final TextEditingController caloriesLimitController = TextEditingController();
+  String mealType = "Breakfast";
   final DatePickerController _datePickercontroller = DatePickerController();
   final TextEditingController mealNameController = TextEditingController();
   final TextEditingController servingSizeController = TextEditingController();
@@ -683,7 +680,13 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      const MealTypeDropdown(),
+                      MealTypeDropdown(
+                        onChanged: (value) {
+                          setState(() {
+                            mealType = value;
+                          });
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -717,6 +720,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  bool containsError(Map<String, dynamic> geminiResponse) {
+    return geminiResponse.containsKey("error");
+  }
+
+  void notifyError(String error) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error: $error"), duration: Duration(seconds: 2)),
+    );
+  }
+
   Future<void> _analyzeFood() async {
     try {
       final gemini = Gemini.instance;
@@ -728,12 +742,10 @@ class _HomePageState extends State<HomePage> {
               '''Analyze the nutritional value of the food! Respond ONLY with a raw JSON object in this format:
             {
             "food_name": "Name of the food in proper name (No abbrevitations and such)" (String),
-            "main_ingredients": ["Main ingredients of the food"] (Array of string),
             "calories": Amount of calories in kcal (int),
             "carbohydrates": Amount of carbohydrates in grams (int),
             "proteins": Amount of proteins in grams (int),
             "fats": Amount of fats in grams (int),
-            "minerals": ["Minerals contained in the food"] (Array of strings)
             }
             Do not include any explanations, markdown formatting, or code block indicators (e.g., no ```json or backticks). Only respond with the raw JSON.
             You can add bold and italics markdown formatting to the "additional_info" field.
@@ -750,12 +762,28 @@ class _HomePageState extends State<HomePage> {
       } while (!isJSON(result?.output ?? '{"error": "Not a food"}'));
       log(result?.output ?? "");
       Map<String, dynamic> geminiResponse = jsonDecode(result?.output ?? "");
-      setState(() {
-        fats += geminiResponse["fats"] as int;
-      });
-      // return jsonDecode(result?.output ?? "");
+      if (containsError(geminiResponse)) {
+        notifyError(geminiResponse["error"]);
+      }
+      geminiResponse["serving_size"] = servingSizeController.text;
+      User? user = FirebaseAuth.instance.currentUser;
+      String date = DateTime.now().toString().split(" ")[0];
+      log(date);
+      try {
+        await FirebaseFirestore.instance
+            .collection("Users")
+            .doc("${user?.uid}")
+            .collection("Consumption")
+            .doc(date)
+            .collection(mealType)
+            .add(geminiResponse);
+      } catch (e) {
+        log(e.toString());
+        notifyError("An error occurred when storing data");
+      }
     } catch (e) {
       log("Gemini error: $e");
+      notifyError("An error occurred when analyzing the food");
     }
   }
 
