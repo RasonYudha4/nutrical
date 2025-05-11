@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MealTextField extends StatelessWidget {
   final IconData icon;
   final String hintText;
-
-  const MealTextField({super.key, required this.icon, required this.hintText});
+  final TextEditingController? controller;
+  final List<TextInputFormatter> inputFormatter;
+  final TextInputType keyboardType;
+  const MealTextField({
+    super.key,
+    required this.icon,
+    required this.hintText,
+    this.controller,
+    this.inputFormatter = const [],
+    this.keyboardType = TextInputType.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +40,9 @@ class MealTextField extends StatelessWidget {
           SizedBox(width: 8),
           Expanded(
             child: TextField(
+              controller: controller,
+              inputFormatters: inputFormatter,
+              keyboardType: keyboardType,
               decoration: InputDecoration(
                 hintText: hintText,
                 border: InputBorder.none,
