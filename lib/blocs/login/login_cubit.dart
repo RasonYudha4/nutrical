@@ -13,21 +13,49 @@ class LoginCubit extends Cubit<LoginState> {
 
   final AuthRepo _authenticationRepository;
 
-  void emailChanged(String email) => emit(state.withEmail(email));
+  void emailChanged(String email) {
+    emit(state.copyWith(
+      email: Email.dirty(email),
+      showValidationErrors: false,
+    ));
+  }
 
-  void passwordChanged(String password) => emit(state.withPassword(password));
+  void passwordChanged(String password) {
+    emit(state.copyWith(
+      password: Password.dirty(password),
+      showValidationErrors: false,
+    ));
+  }
 
   Future<void> logInWithCredentials() async {
+    emit(state.copyWith(showValidationErrors: true, isSubmitted: true));
+
     if (!state.isValid) return;
-    emit(state.withSubmissionInProgress());
+    emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
+
     try {
       await _authenticationRepository.logIn(
         email: state.email.value,
         password: state.password.value,
       );
-      emit(state.withSubmissionSuccess());
+      emit(state.copyWith(status: FormzSubmissionStatus.success));
     } catch (e) {
-      emit(state.withSubmissionFailure());
+      String errorMessage;
+
+      if (e.toString().contains('user-not-found')) {
+        errorMessage = 'User not found. Please check your credentials.';
+      } else if (e.toString().contains('wrong-password')) {
+        errorMessage = 'Incorrect password. Please try again.';
+      } else if (e.toString().contains('invalid-email')) {
+        errorMessage = 'The email address is not valid.';
+      } else {
+        errorMessage = 'Login failed. Please try again.';
+      }
+
+      emit(state.copyWith(
+        status: FormzSubmissionStatus.failure,
+        errorMessage: errorMessage,
+      ));
     }
   }
 }
