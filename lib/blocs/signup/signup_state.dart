@@ -1,14 +1,13 @@
 part of 'signup_cubit.dart';
 
 final class SignUpState extends Equatable {
-  const SignUpState() : this._();
-
-  const SignUpState._({
+  const SignUpState({
     this.email = const Email.pure(),
     this.password = const Password.pure(),
     this.confirmedPassword = const ConfirmedPassword.pure(),
     this.status = FormzSubmissionStatus.initial,
     this.errorMessage,
+    this.showValidationErrors = false,
   });
 
   final Email email;
@@ -16,62 +15,23 @@ final class SignUpState extends Equatable {
   final ConfirmedPassword confirmedPassword;
   final FormzSubmissionStatus status;
   final String? errorMessage;
+  final bool showValidationErrors;
 
-  SignUpState withEmail(String email) {
-    return SignUpState._(
-      email: Email.dirty(email),
-      password: password,
-      confirmedPassword: confirmedPassword,
-    );
-  }
-
-  SignUpState withPassword(String password) {
-    return SignUpState._(
-      email: email,
-      password: Password.dirty(password),
-      confirmedPassword: ConfirmedPassword.dirty(
-        password: password,
-        value: confirmedPassword.value,
-      ),
-    );
-  }
-
-  SignUpState withConfirmedPassword(String confirmedPassword) {
-    return SignUpState._(
-      email: email,
-      password: password,
-      confirmedPassword: ConfirmedPassword.dirty(
-        password: password.value,
-        value: confirmedPassword,
-      ),
-    );
-  }
-
-  SignUpState withSubmissionInProgress() {
-    return SignUpState._(
-      email: email,
-      password: password,
-      confirmedPassword: confirmedPassword,
-      status: FormzSubmissionStatus.inProgress,
-    );
-  }
-
-  SignUpState withSubmissionSuccess() {
-    return SignUpState._(
-      email: email,
-      password: password,
-      confirmedPassword: confirmedPassword,
-      status: FormzSubmissionStatus.success,
-    );
-  }
-
-  SignUpState withSubmissionFailure([String? error]) {
-    return SignUpState._(
-      email: email,
-      password: password,
-      confirmedPassword: confirmedPassword,
-      status: FormzSubmissionStatus.failure,
-      errorMessage: error,
+  SignUpState copyWith({
+    Email? email,
+    Password? password,
+    ConfirmedPassword? confirmedPassword,
+    FormzSubmissionStatus? status,
+    String? errorMessage,
+    bool? showValidationErrors,
+  }) {
+    return SignUpState(
+      email: email ?? this.email,
+      password: password ?? this.password,
+      confirmedPassword: confirmedPassword ?? this.confirmedPassword,
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+      showValidationErrors: showValidationErrors ?? this.showValidationErrors,
     );
   }
 
@@ -84,5 +44,6 @@ final class SignUpState extends Equatable {
     confirmedPassword,
     status,
     errorMessage,
+    showValidationErrors,
   ];
 }
