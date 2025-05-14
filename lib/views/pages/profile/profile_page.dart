@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nutrical/views/pages/profile/change_detail_page.dart';
 
 import '../../../blocs/auth/auth_bloc.dart';
 import '../../../data/models/user.dart';
@@ -13,7 +14,6 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.read<User>();
-    print(user.name);
     return Scaffold(
       body: Stack(
         children: [
@@ -125,7 +125,19 @@ class ProfilePage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 40),
-                          _buildMenuItem('Change Password', onTap: () {}),
+                          _buildMenuItem(
+                            'Change Details',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                    return ChangeDetailPage();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                           _buildMenuItem(
                             'FAQ',
                             onTap: () {
