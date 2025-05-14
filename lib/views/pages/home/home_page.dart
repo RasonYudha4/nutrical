@@ -931,7 +931,7 @@ class _HomePageState extends State<HomePage> {
 
             num _carbs = 0, _proteins = 0, _fats = 0, _calories = 0;
             for (var doc in snapshot.docs) {
-              Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+              Map<String, dynamic> data = doc.data();
               _carbs += data["carbohydrates"];
               _proteins += data["proteins"];
               _fats += data["fats"];

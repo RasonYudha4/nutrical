@@ -47,11 +47,6 @@ class _RecipePageState extends State<RecipePage> {
                 BlocBuilder<RecipeBloc, RecipeState>(
                   builder: (context, state) {
                     if (state is RecipeNamesLoaded) {
-                      state.recipeList.forEach((recipe) {
-                        print(
-                          'Recipe UID: ${recipe.uid}, Name: ${recipe.name}',
-                        );
-                      });
                       return MealPlannerCard(
                         userId: user.id,
                         isEnabled: true,
@@ -72,13 +67,6 @@ class _RecipePageState extends State<RecipePage> {
                     if (state is MealLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is MealPlanLoaded) {
-                      print(state.mealPlan);
-                      print('Meal Days Count: ${state.mealPlan.days.length}');
-                      for (var meal in state.mealPlan.days) {
-                        print(
-                          'Meal Day: ${meal?.day}, Breakfast: ${meal?.breakfast}, Lunch: ${meal?.lunch}, Dinner: ${meal?.dinner}',
-                        );
-                      }
                       return _buildMealPlanContent(context, state.mealPlan);
                     } else {
                       return const Center(
