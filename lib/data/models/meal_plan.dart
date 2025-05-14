@@ -1,3 +1,4 @@
+import '../enums/meal_type.dart';
 import 'meal.dart';
 
 class MealPlan {
@@ -37,5 +38,3 @@ class MealPlan {
     }
   }
 }
-
-enum MealType { breakfast, lunch, dinner }

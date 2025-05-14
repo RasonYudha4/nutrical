@@ -1,7 +1,5 @@
 part of 'auth_bloc.dart';
 
-enum AuthStatus { authenticated, unauthenticated }
-
 final class AuthState extends Equatable {
   const AuthState({User user = User.empty})
     : this._(

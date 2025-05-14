@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class ActivityLevelDropdown extends StatefulWidget {
-  const ActivityLevelDropdown({super.key});
+  final int? initialValue;
+
+  final void Function(int)? onChanged;
+
+  const ActivityLevelDropdown({super.key, this.initialValue, this.onChanged});
 
   @override
   ActivityLevelDropdownState createState() => ActivityLevelDropdownState();
@@ -18,6 +22,12 @@ class ActivityLevelDropdownState extends State<ActivityLevelDropdown> {
   int? _selectedLevel;
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLevel = widget.initialValue;
+  }
 
   void _toggleDropdown() {
     if (_overlayEntry == null) {
@@ -58,6 +68,10 @@ class ActivityLevelDropdownState extends State<ActivityLevelDropdown> {
                               setState(() {
                                 _selectedLevel = entry.key;
                               });
+                              // Call the callback with the new value
+                              if (widget.onChanged != null) {
+                                widget.onChanged!(_selectedLevel!);
+                              }
                               _removeOverlay();
                             },
                           );

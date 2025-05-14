@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../data/enums/navbar_items.dart';
+
 part 'navigation_state.dart';
 
 class NavigationCubit extends Cubit<NavigationState> {

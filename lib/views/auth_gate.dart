@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../blocs/auth/auth_bloc.dart';
 import '../config/size_config.dart';
+import '../data/enums/authstatus.dart';
 import '../data/models/user.dart';
 import 'pages/landing_screen.dart';
 import 'pages/auth/login/login_page.dart';
@@ -17,7 +18,6 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.select((AuthBloc bloc) => bloc.state.user);
     return MaterialApp(
-      // theme: theme,
       home: Builder(
         builder: (context) {
           SizeConfig.init(context);
@@ -31,8 +31,6 @@ class AuthGate extends StatelessWidget {
                       child: MultiBlocProvider(
                         providers: [
                           BlocProvider(create: (_) => NavigationCubit()),
-                          // BlocProvider(create: (_) => MealBloc()),
-                          // BlocProvider(create: (_) => RecipeBloc()),
                         ],
                         child: Provider<User>.value(
                           value: user,

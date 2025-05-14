@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutrical/views/pages/profile/change_detail_page.dart';
 
 import '../../../blocs/auth/auth_bloc.dart';
+import '../../../blocs/user/user_bloc.dart';
 import '../../../data/models/user.dart';
 import 'about_page.dart';
 import 'faq_page.dart';
@@ -132,7 +133,12 @@ class ProfilePage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (BuildContext context) {
-                                    return ChangeDetailPage();
+                                    return BlocProvider<UserBloc>(
+                                      create:
+                                          (context) =>
+                                              UserBloc(userId: user.id),
+                                      child: ChangeDetailPage(userId: user.id),
+                                    );
                                   },
                                 ),
                               );

@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:nutrical/data/repositories/auth_repo.dart';
 
+import '../../data/enums/authstatus.dart';
 import '../../data/models/user.dart';
 
 part 'auth_event.dart';

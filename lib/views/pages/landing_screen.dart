@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/enums/navbar_items.dart';
 import 'analyze/analyze_page.dart';
 import 'home/home_page.dart';
 import 'recipe/recipe_page.dart';

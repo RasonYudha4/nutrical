@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/navigation/navigation_cubit.dart';
 import '../../config/size_config.dart';
+import '../../data/enums/navbar_items.dart';
 import 'navigation_button.dart';
 
 class CustomNavBar extends StatelessWidget {

@@ -1,0 +1,1 @@
+enum EmailValidationError { empty, invalid }

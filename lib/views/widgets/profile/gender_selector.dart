@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum Gender { male, female }
+import '../../../data/enums/gender.dart';
 
 class GenderSelector extends StatefulWidget {
   final Gender? selectedGender;
