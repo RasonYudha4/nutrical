@@ -1,10 +1,17 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import "package:flutter_gemini/flutter_gemini.dart";
 import 'dart:convert';
 import 'analysis_result.dart';
+import 'package:nutrical/views/widgets/analyze/meal_type_dropdown.dart';
+import 'package:nutrical/views/widgets/analyze/meal_text.dart';
+
+import 'package:nutrical/views/widgets/analyze/meal_textfield.dart';
 
 class AnalyzePage extends StatefulWidget {
   const AnalyzePage({super.key});
@@ -18,6 +25,126 @@ class _AnalyzePageState extends State<AnalyzePage> {
   final ImagePicker _picker = ImagePicker();
   String foodName = "";
   Map<String, dynamic> _geminiResponse = {};
+  String mealType = "Breakfast";
+  int servingSize = 1;
+  Future<bool> _showAddMealDialog(String foodName) async {
+    TextEditingController servingSizeController = TextEditingController(
+      text: "1",
+    );
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD3E671),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  "Record Your Consumption",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      MealText(
+                        icon: Icons.local_dining_rounded,
+                        text: foodName,
+                      ),
+                      const SizedBox(height: 20),
+                      MealTextField(
+                        icon: Icons.dinner_dining,
+                        hintText: "Serving estimation",
+                        controller: servingSizeController,
+                        keyboardType: TextInputType.number,
+                        inputFormatter: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      MealTypeDropdown(
+                        onChanged: (value) {
+                          setState(() {
+                            mealType = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      servingSize = int.parse(servingSizeController.text);
+                    });
+                    Navigator.pop(context, true);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF89AC46),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Add",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    return result ?? false; // false if user dismisses dialog
+  }
+
+  Future<void> _saveToFirebase(
+    int calories,
+    int carbohydrates,
+    int proteins,
+    int fats,
+    int servingSize,
+    String mealType,
+  ) async {
+    log("Save to firebase called");
+    Map<String, dynamic> data = {
+      "calories": calories,
+      "carbohydrates": carbohydrates,
+      "proteins": proteins,
+      "fats": fats,
+      "serving_size": servingSize,
+      "meal_type": mealType,
+    };
+    log(data.toString());
+    User? user = FirebaseAuth.instance.currentUser;
+    String date = DateTime.now().toString().split(" ")[0];
+    try {
+      await FirebaseFirestore.instance
+          .collection("Consumption")
+          .doc("${user?.uid}")
+          .collection(date)
+          .add(data);
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 
   bool containsError(Map<String, dynamic> geminiResponse) {
     return geminiResponse.containsKey("error");
@@ -43,6 +170,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
           _image = File(photo.path);
           _geminiResponse =
               geminiResponse.containsKey("error") ? {} : geminiResponse;
+          foodName = geminiResponse["food_name"];
         });
       }
     } catch (e) {
@@ -54,6 +182,9 @@ class _AnalyzePageState extends State<AnalyzePage> {
     setState(() {
       _image = null;
       _geminiResponse = {};
+      servingSize = 1;
+      mealType = "Breakfast";
+      foodName = "";
     });
   }
 
@@ -69,6 +200,7 @@ class _AnalyzePageState extends State<AnalyzePage> {
         setState(() {
           _image = File(image.path);
           _geminiResponse = geminiResponse;
+          foodName = geminiResponse["food_name"];
         });
       }
     } catch (e) {
@@ -238,6 +370,20 @@ class _AnalyzePageState extends State<AnalyzePage> {
                 : AnalysisResult(
                   geminiResponse: _geminiResponse,
                   onPressedNo: resetState,
+                  onPressedYes: () async {
+                    bool result = await _showAddMealDialog(foodName);
+                    if (result) {
+                      _saveToFirebase(
+                        _geminiResponse["calories"] as int,
+                        _geminiResponse["carbohydrates"] as int,
+                        _geminiResponse["proteins"] as int,
+                        _geminiResponse["fats"] as int,
+                        servingSize,
+                        mealType,
+                      );
+                      resetState();
+                    }
+                  },
                 ),
           ],
         ),

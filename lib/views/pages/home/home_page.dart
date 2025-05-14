@@ -15,6 +15,7 @@ import '../../../blocs/home/home_bloc.dart';
 import '../../widgets/home/meal_type_card.dart';
 import '../../widgets/home/meal_textfield.dart';
 import '../../widgets/home/meal_type_dropdown.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,14 +28,14 @@ class _HomePageState extends State<HomePage> {
   final backgroundColor = const Color(0xFFD3E671);
   final primaryColor = const Color(0xFF89AC46);
 
-  int carbs = 200;
-  int proteins = 18;
-  int fats = 180;
-  int calories = 6000;
-  int caloriesLimit = 3900;
-  int carbsLimit = 200;
-  int proteinsLimit = 200;
-  int fatsLimit = 200;
+  int carbs = 0;
+  int proteins = 0;
+  int fats = 0;
+  int calories = 0;
+  int caloriesLimit = 2229;
+  int carbsLimit = 279;
+  int proteinsLimit = 28;
+  int fatsLimit = 74;
   String mealType = "Breakfast";
   final DatePickerController _datePickercontroller = DatePickerController();
   final TextEditingController mealNameController = TextEditingController();
@@ -56,6 +57,16 @@ class _HomePageState extends State<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _datePickercontroller.jumpToSelection();
     });
+    _onDateChange(DateTime.now());
+    _loadPersonalDataFromFirebase();
+  }
+
+  @override
+  void dispose() {
+    mealNameController.dispose();
+    servingSizeController.dispose();
+    _dateListener?.cancel();
+    super.dispose();
   }
 
   @override
@@ -173,6 +184,7 @@ class _HomePageState extends State<HomePage> {
               selectionColor: backgroundColor,
               selectedTextColor: Colors.white,
               daysCount: 7,
+              onDateChange: _onDateChange,
             ),
           ),
         ],
@@ -434,7 +446,7 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  value.toString(),
+                  (limit - value).abs().toString(),
                   style: TextStyle(
                     color: getNutritionColor(
                       value,
@@ -765,22 +777,14 @@ class _HomePageState extends State<HomePage> {
       if (containsError(geminiResponse)) {
         notifyError(geminiResponse["error"]);
       }
-      geminiResponse["serving_size"] = servingSizeController.text;
-      User? user = FirebaseAuth.instance.currentUser;
-      String date = DateTime.now().toString().split(" ")[0];
-      log(date);
-      try {
-        await FirebaseFirestore.instance
-            .collection("Users")
-            .doc("${user?.uid}")
-            .collection("Consumption")
-            .doc(date)
-            .collection(mealType)
-            .add(geminiResponse);
-      } catch (e) {
-        log(e.toString());
-        notifyError("An error occurred when storing data");
-      }
+      _saveToFirebase(
+        geminiResponse["calories"],
+        geminiResponse["carbohydrates"],
+        geminiResponse["proteins"],
+        geminiResponse["fats"],
+        int.parse(servingSizeController.text),
+        mealType,
+      );
     } catch (e) {
       log("Gemini error: $e");
       notifyError("An error occurred when analyzing the food");
@@ -794,6 +798,158 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       return false;
     }
+  }
+
+  Future<void> _saveToFirebase(
+    int calories,
+    int carbohydrates,
+    int proteins,
+    int fats,
+    int servingSize,
+    String mealType,
+  ) async {
+    Map<String, dynamic> data = {
+      "calories": calories,
+      "carbohydrates": carbohydrates,
+      "proteins": proteins,
+      "fats": fats,
+      "serving_size": servingSize,
+      "meal_type": mealType,
+    };
+    User? user = FirebaseAuth.instance.currentUser;
+    String date = DateTime.now().toString().split(" ")[0];
+    try {
+      await FirebaseFirestore.instance
+          .collection("Consumption")
+          .doc("${user?.uid}")
+          .collection(date)
+          .add(data);
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Future<void> _onDateChange(DateTime selectedDate) async {
+    _dateListener?.cancel();
+    _listenToDateCollection(selectedDate);
+    await _loadFromFirebase(selectedDate);
+  }
+
+  Future<void> _loadPersonalDataFromFirebase() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance
+            .collection("Users")
+            .doc(user?.uid)
+            .get();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    if (data["height"] == null || data["weight"] == null) return;
+    Map<int, double> activityMultiplier = {0: 1.2, 1: 1.375, 2: 1.55, 3: 1.725};
+    double BMR =
+        (10 * (data["weight"] as double)) +
+        (6.25 * (data["height"] as double)) -
+        (5 * (data["age"] as int)) +
+        (data["gender"] == "male" ? 5 : -161);
+    int TDEE =
+        (BMR * activityMultiplier[data["activityLevel"] as int]!).toInt();
+    log(TDEE.toString());
+    int protein = (TDEE * 0.20 / 4).toInt();
+    int fat = (TDEE * 0.30 / 4).toInt();
+    int carbs = (TDEE * 0.50 / 4).toInt();
+    setState(() {
+      carbsLimit = carbs;
+      proteinsLimit = protein;
+      fatsLimit = fat;
+      caloriesLimit = TDEE;
+    });
+  }
+
+  Future<void> _loadFromFirebase(DateTime selectedDate) async {
+    log("Load from firebase called");
+    User? user = FirebaseAuth.instance.currentUser;
+    String date = selectedDate.toString().split(" ")[0];
+    num _carbs = 0, _proteins = 0, _fats = 0, _calories = 0;
+    try {
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance
+              .collection("Consumption")
+              .doc("${user?.uid}")
+              .collection(date)
+              .get();
+      if (snapshot.docs.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          carbs = 0;
+          proteins = 0;
+          fats = 0;
+          calories = 0;
+        });
+        log("No data found");
+        return;
+      }
+      for (QueryDocumentSnapshot doc in snapshot.docs) {
+        _carbs += doc["carbohydrates"] * doc["serving_size"];
+        _proteins += doc["proteins"] * doc["serving_size"];
+        _fats += doc["fats"] * doc["serving_size"];
+        _calories += doc["calories"] * doc["serving_size"];
+      }
+      if (!mounted) return;
+      setState(() {
+        carbs = _carbs as int;
+        proteins = _proteins as int;
+        fats = _fats as int;
+        calories = _calories as int;
+      });
+    } catch (e) {
+      log("Error: ${e.toString()}");
+    }
+  }
+
+  StreamSubscription? _dateListener;
+
+  void _listenToDateCollection(DateTime selectedDate) {
+    User? user = FirebaseAuth.instance.currentUser;
+    String date = selectedDate.toString().split(" ")[0];
+
+    _dateListener = FirebaseFirestore.instance
+        .collection("Consumption")
+        .doc(user?.uid)
+        .collection(date)
+        .snapshots()
+        .listen(
+          (snapshot) {
+            if (snapshot.docs.isEmpty) {
+              setState(() {
+                carbs = 0;
+                proteins = 0;
+                fats = 0;
+                calories = 0;
+              });
+              log("No data found for date: $date");
+              return;
+            }
+
+            num _carbs = 0, _proteins = 0, _fats = 0, _calories = 0;
+            for (var doc in snapshot.docs) {
+              Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+              _carbs += data["carbohydrates"];
+              _proteins += data["proteins"];
+              _fats += data["fats"];
+              _calories += data["calories"];
+            }
+
+            setState(() {
+              carbs = _carbs.toInt();
+              proteins = _proteins.toInt();
+              fats = _fats.toInt();
+              calories = _calories.toInt();
+            });
+            log("Updated values for $date");
+          },
+          onError: (error) {
+            log("Listener error: $error");
+          },
+        );
   }
 
   Color getNutritionColor(int value, int limit, String category) {
