@@ -198,6 +198,7 @@ class MealPlannerCardState extends State<MealPlannerCard> {
                         radius: 0.9,
                       ),
                     ),
+                    child: Icon(Icons.forum, color: Colors.white, size: 40),
                   ),
                 ),
                 const SizedBox(width: 25),

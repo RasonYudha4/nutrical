@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
-import '../../../../data/form_inputs/auth/email.dart'; 
-import '../../../../data/form_inputs/auth/password.dart'; 
+import '../../../../data/form_inputs/auth/email.dart';
+import '../../../../data/form_inputs/auth/password.dart';
 import '../../../../blocs/login/login_cubit.dart';
 import '../signup/signup_page.dart';
 
@@ -21,7 +21,7 @@ class LoginForm extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 85),
-                Container(
+              Container(
                 width: 110,
                 height: 110,
                 decoration: BoxDecoration(
@@ -38,10 +38,7 @@ class LoginForm extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    'assets/logo.jpeg',  
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.asset('assets/logo.jpeg', fit: BoxFit.cover),
                 ),
               ),
               const SizedBox(height: 45),
@@ -79,7 +76,7 @@ class LoginForm extends StatelessWidget {
                     const SizedBox(height: 15),
                     _SignUpButton(),
                   ],
-                )
+                ),
               ),
             ],
           ),
@@ -106,7 +103,8 @@ class _EmailInput extends StatelessWidget {
           ),
           child: TextField(
             key: const Key('loginForm_emailInput_textField'),
-            onChanged: (email) => context.read<LoginCubit>().emailChanged(email),
+            onChanged:
+                (email) => context.read<LoginCubit>().emailChanged(email),
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
               prefixIcon: Row(
@@ -120,7 +118,10 @@ class _EmailInput extends StatelessWidget {
                     height: 24.0,
                     width: 1.0,
                     color: Colors.grey,
-                    margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 1.0),
+                    margin: EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 1.0,
+                    ),
                   ),
                   SizedBox(width: 8.0),
                 ],
@@ -137,10 +138,7 @@ class _EmailInput extends StatelessWidget {
             padding: const EdgeInsets.only(top: 4, left: 8),
             child: Text(
               _getEmailErrorMessage(state.email),
-              style: TextStyle(
-                color: Colors.red[700],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.red[700], fontSize: 12),
             ),
           ),
       ],
@@ -175,7 +173,9 @@ class _PasswordInput extends StatelessWidget {
           ),
           child: TextField(
             key: const Key('loginForm_passwordInput_textField'),
-            onChanged: (password) => context.read<LoginCubit>().passwordChanged(password),
+            onChanged:
+                (password) =>
+                    context.read<LoginCubit>().passwordChanged(password),
             obscureText: true,
             decoration: InputDecoration(
               prefixIcon: Row(
@@ -189,7 +189,10 @@ class _PasswordInput extends StatelessWidget {
                     height: 24.0,
                     width: 1.0,
                     color: Colors.grey,
-                    margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 1.0),
+                    margin: EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 1.0,
+                    ),
                   ),
                   SizedBox(width: 8.0),
                 ],
@@ -201,16 +204,13 @@ class _PasswordInput extends StatelessWidget {
             ),
           ),
         ),
-        
+
         if (showError)
           Padding(
             padding: const EdgeInsets.only(top: 4, left: 8),
             child: Text(
               _getPasswordErrorMessage(state.password),
-              style: TextStyle(
-                color: Colors.red[700],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.red[700], fontSize: 12),
             ),
           ),
       ],
@@ -236,17 +236,17 @@ class _LoginErrorText extends StatelessWidget {
 
     return isFailure
         ? Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              state.errorMessage ?? "Login failed. Please try again.",
-              style: TextStyle(
-                color: Colors.red[700],
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            state.errorMessage ?? "Login failed. Please try again.",
+            style: TextStyle(
+              color: Colors.red[700],
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
-          )
+            textAlign: TextAlign.center,
+          ),
+        )
         : const SizedBox.shrink();
   }
 }
@@ -264,16 +264,12 @@ class _LoginButton extends StatelessWidget {
       child: ElevatedButton(
         key: const Key('loginForm_continue_raisedButton'),
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(
-            const Color(0xFF89AC46),
-          ),
+          backgroundColor: MaterialStateProperty.all(const Color(0xFF89AC46)),
           padding: MaterialStateProperty.all(
             const EdgeInsets.symmetric(vertical: 16),
           ),
           shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           foregroundColor: MaterialStateProperty.all(Colors.black),
           overlayColor: MaterialStateProperty.all(Colors.black12),

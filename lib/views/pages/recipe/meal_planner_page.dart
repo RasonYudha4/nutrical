@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 
 class MealPlannerPage extends StatefulWidget {
   const MealPlannerPage({super.key});
@@ -91,7 +92,7 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
                                 : const Color(0xFF89AC46),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(message['text'] ?? ''),
+                      child: GptMarkdown(message['text'] ?? ''),
                     ),
                   );
                 },
