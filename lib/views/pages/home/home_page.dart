@@ -1,16 +1,16 @@
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nutrical/views/widgets/home/calories_card.dart';
-import 'package:nutrical/views/widgets/home/nutrition_card.dart';
 
 import '../../../blocs/auth/auth_bloc.dart';
 import '../../../blocs/content/content_bloc.dart';
 import '../../../blocs/consumption/consumption_bloc.dart';
 import '../../../blocs/user/user_bloc.dart';
+import '../../widgets/home/calories_card.dart';
 import '../../widgets/home/content_card.dart';
 import '../../widgets/home/meal_dialog.dart';
 import '../../widgets/home/meal_type_card.dart';
+import '../../widgets/home/nutrition_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

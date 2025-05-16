@@ -8,6 +8,7 @@ import '../../widgets/profile/activity_level_dropdown.dart';
 import '../../widgets/profile/custom_textfield.dart';
 import '../../widgets/profile/gender_selector.dart';
 import '../../widgets/profile/small_custom_textfield.dart';
+import '../../widgets/profile/success_dialog.dart';
 
 class ChangeDetailPage extends StatefulWidget {
   final String userId;
@@ -29,7 +30,6 @@ class _ChangeDetailPageState extends State<ChangeDetailPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch user details when page loads
     context.read<UserBloc>().add(FetchUserDetails(userId: widget.userId));
   }
 
@@ -42,7 +42,6 @@ class _ChangeDetailPageState extends State<ChangeDetailPage> {
     super.dispose();
   }
 
-  // Update form fields with user data
   void _updateFormFields(User user) {
     if (user.name != null) _nameController.text = user.name!;
     if (user.height != null) _heightController.text = user.height!.toString();
@@ -63,6 +62,13 @@ class _ChangeDetailPageState extends State<ChangeDetailPage> {
         listener: (context, state) {
           if (state is UserLoaded) {
             _updateFormFields(state.user);
+          } else if (state is UserUpdated) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return SuccessDialog();
+              },
+            );
           } else if (state is UserError) {
             ScaffoldMessenger.of(
               context,

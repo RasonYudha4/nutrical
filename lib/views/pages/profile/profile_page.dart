@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nutrical/views/pages/profile/change_detail_page.dart';
 
 import '../../../blocs/auth/auth_bloc.dart';
 import '../../../blocs/user/user_bloc.dart';
@@ -8,12 +7,18 @@ import '../../../data/models/user.dart';
 import '../../widgets/profile/menu_item_tile.dart';
 import '../../widgets/profile/user_profile_card.dart';
 import 'about_page.dart';
+import 'change_detail_page.dart';
 import 'faq_page.dart';
 import 'help_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final user = context.read<User>();
@@ -78,8 +83,8 @@ class ProfilePage extends StatelessWidget {
                             const SizedBox(height: 40),
                             MenuItemTile(
                               title: 'Change Details',
-                              onTap: () {
-                                Navigator.push(
+                              onTap: () async {
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (BuildContext context) {
