@@ -4,25 +4,23 @@ import 'package:equatable/equatable.dart';
 import '../../data/models/content.dart';
 import '../../data/repositories/content_repo.dart';
 
-part 'home_event.dart';
-part 'home_state.dart';
+part 'content_event.dart';
+part 'content_state.dart';
 
-class HomeBloc extends Bloc<HomeEvent, HomeState> {
+class ContentBloc extends Bloc<ContentEvent, ContentState> {
   final ContentRepo _contentRepo = ContentRepo();
 
-  HomeBloc() : super(HomeInitial()) {
+  ContentBloc() : super(ContentInitial()) {
     on<LoadContents>(_onLoadContents);
   }
 
   Future<void> _onLoadContents(
     LoadContents event,
-    Emitter<HomeState> emit,
+    Emitter<ContentState> emit,
   ) async {
+    emit(ContentLoading());
     try {
-      emit(ContentLoading());
-
-      final List<Content> contents = await _contentRepo.fetchContents();
-
+      final contents = await _contentRepo.fetchContents();
       emit(ContentLoaded(contents));
     } catch (e) {
       emit(ContentLoadError(e.toString()));

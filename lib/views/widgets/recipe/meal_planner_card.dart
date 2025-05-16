@@ -39,7 +39,7 @@ class MealPlannerCardState extends State<MealPlannerCard> {
     super.dispose();
   }
 
-  void _generateMealPlan() async {
+  Future<void> _generateMealPlan() async {
     final inputText = _meatRecipeController.text.trim();
     if (inputText.isEmpty) return;
 

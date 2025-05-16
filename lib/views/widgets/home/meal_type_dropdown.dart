@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class MealTypeDropdown extends StatefulWidget {
   final ValueChanged<String>? onChanged;
-  const MealTypeDropdown({super.key, this.onChanged});
+  const MealTypeDropdown({super.key, this.onChanged, String? value});
   @override
   State<MealTypeDropdown> createState() => _MealTypeDropdownState();
 }

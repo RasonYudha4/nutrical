@@ -33,6 +33,14 @@ class UserRepo {
     try {
       final docRef = _firestore.collection("Users").doc(userId);
 
+      double bmr =
+          (10 * weight) +
+          (6.25 * height) -
+          (5 * age) +
+          (gender == Gender.male ? 5 : -161);
+
+      double bmi = weight / ((height / 100) * (height / 100));
+
       final Map<String, dynamic> updateData = {
         'name': name,
         'gender': gender.toString().split('.').last,
@@ -40,6 +48,8 @@ class UserRepo {
         'height': height,
         'weight': weight,
         'activityLevel': activityLevel,
+        'bmr': bmr,
+        'bmi': bmi,
       };
 
       await docRef.update(updateData);

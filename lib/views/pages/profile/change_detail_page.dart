@@ -84,7 +84,7 @@ class _ChangeDetailPageState extends State<ChangeDetailPage> {
                     IconButton(
                       icon: const Icon(Icons.arrow_back_ios_new_rounded),
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, true);
                       },
                     ),
                     const Expanded(

@@ -54,11 +54,15 @@ class ProfilePage extends StatelessWidget {
                               builder: (context, state) {
                                 if (state is UserLoaded) {
                                   return UserProfileCard(
-                                    name: state.user.name!,
-                                    email: state.user.email!,
-                                    height: state.user.height.toString(),
-                                    weight: state.user.weight.toString(),
-                                    age: state.user.age.toString(),
+                                    name: state.user.name ?? "-",
+                                    email: state.user.email ?? "-",
+                                    height:
+                                        state.user.height?.toString() ?? "-",
+                                    weight:
+                                        state.user.weight?.toString() ?? "-",
+                                    bmi:
+                                        state.user.bmi?.toStringAsFixed(1) ??
+                                        "-",
                                   );
                                 } else {
                                   return UserProfileCard(
@@ -66,7 +70,7 @@ class ProfilePage extends StatelessWidget {
                                     email: user.email!,
                                     height: "-",
                                     weight: "-",
-                                    age: "-",
+                                    bmi: "-",
                                   );
                                 }
                               },

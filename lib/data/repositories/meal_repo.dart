@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:nutrical/data/models/meal_plan.dart';
 
 import '../models/meal.dart';
+import '../models/meal_plan.dart';
 
 class MealRepo {
   Future<MealPlan?> fetchMealPlan(String userId) async {

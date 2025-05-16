@@ -5,7 +5,7 @@ class UserProfileCard extends StatelessWidget {
   final String email;
   final String height;
   final String weight;
-  final String age;
+  final String bmi;
 
   const UserProfileCard({
     super.key,
@@ -13,7 +13,7 @@ class UserProfileCard extends StatelessWidget {
     required this.email,
     required this.height,
     required this.weight,
-    required this.age,
+    required this.bmi,
   });
 
   @override
@@ -77,7 +77,7 @@ class UserProfileCard extends StatelessWidget {
                   children: [
                     _buildStatItem(height, 'cm', 'Height'),
                     _buildStatItem(weight, 'kg', 'Weight'),
-                    _buildStatItem(age, '', 'BMI'),
+                    _buildStatItem(bmi, '', 'BMI'),
                   ],
                 ),
               ],
